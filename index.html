@@ -29,22 +29,23 @@
       <ul id="friends"></ul>
     </dd>
   </dl>
-  <script src="scripts/bling.js"></script>
   <script src="https://solid.github.io/solid-auth-client/dist/solid-auth-client.bundle.js"></script>
   <script src="https://linkeddata.github.io/rdflib.js/dist/rdflib.min.js"></script>
   <!-- <script src="scripts/main.js"></script> -->
   <script>
     const popupUri = 'https://solid.github.io/solid-auth-client/dist/popup.html';
-    $('#login button').addEventListener('click', () => solid.auth.popupLogin({ popupUri }));
-    $('#logout button').addEventListener('click', () => solid.auth.logout());
+    const login = document.getElementById('login');
+    const logout = document.getElementById('logout');
+    login.firstElementChild.addEventListener('click', () => solid.auth.popupLogin({ popupUri }));
+    login.firstElementChild.addEventListener('click', () => solid.auth.logout());
 
     // Update components to match the user's login status
     solid.auth.trackSession(session => {
       const loggedIn = !!session;
       const login = document.getElementById('login');
       const logout = document.getElementById('logout');
-      const user = $('#user');
-      const profile = $('#profile');
+      const user = document.getElementById('user')
+      const profile = document.getElementById('profile')
       switch (loggedIn) {
         case true:
           login.style.display = 'none';
@@ -68,33 +69,36 @@
     });
 
     const FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
-    $('#view').addEventListener('click', async function loadProfile() {
+    const view = document.getElementById('view')
+    view.addEventListener('click', async function loadProfile() {
       // Set up a local data store and associated data fetcher
       const store = $rdf.graph();
       const fetcher = new $rdf.Fetcher(store);
 
       // Load the person's data into the store
-      const person = $('#profile')[0].value;
+      const person = document.getElementById('profile').value;
 
       await fetcher.load(person);
 
       // Display their details
       const fullName = store.any($rdf.sym(person), FOAF('name'));
-      $('#fullName')[0].textContent = (fullName && fullName.value);
+      const fullNameEl = document.getElementById('fullName')
+      fullNameEl[0].textContent = (fullName && fullName.value);
       // display friends
       const friends = store.each($rdf.sym(person), FOAF('knows'));
-      $('#friends').innerHTML = '';
+      const friendsEl = document.getElementById('friends')
+      friendsEl.innerHTML = '';
       friends.forEach(async (friend) => {
         await fetcher.load(friend);
         const fullName = store.any(friend, FOAF('name'));
         let li = document.createElement('li')
         li.innerHTML = (fullName && fullName.value || friend.value);
-        $('#friends')[0].appendChild(li);
+        friendsEl[0].appendChild(li);
       });
       if (friends.length < 1) {
         let li = document.createElement('li')
         li.innerHTML = 'No Friends';
-        $('#friends')[0].appendChild(li);
+        friendsEl[0].appendChild(li);
       }
     });
   </script>
