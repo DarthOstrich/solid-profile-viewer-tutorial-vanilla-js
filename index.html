@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Profile Viewer</title>
+</head>
+
+<body>
+  <h1>Profile viewer</h1>
+  <p id="login">
+    You are not logged in.
+    <button>Log in</button>
+  </p>
+  <p id="logout">
+    You are logged in as <span id="user"></span>.
+    <button>Log out</button>
+  </p>
+  <p>
+    <label for="profile">Profile:</label>
+    <input id="profile">
+    <button id="view">View</button>
+  </p>
+  <dl id="viewer">
+    <dt>Full name</dt>
+    <dd id="fullName"></dd>
+  </dl>
+  <script src="scripts/bling.js"></script>
+  <script src="https://solid.github.io/solid-auth-client/dist/solid-auth-client.bundle.js"></script>
+  <script src="https://linkeddata.github.io/rdflib.js/dist/rdflib.min.js"></script>
+  <!-- <script src="scripts/main.js"></script> -->
+  <script>
+    const popupUri = 'https://solid.github.io/solid-auth-client/dist/popup.html';
+    $('#login button').addEventListener('click', () => solid.auth.popupLogin({ popupUri }));
+    $('#logout button').addEventListener('click', () => solid.auth.logout());
+
+    // Update components to match the user's login status
+    solid.auth.trackSession(session => {
+      const loggedIn = !!session;
+      const login = document.getElementById('login');
+      const logout = document.getElementById('logout');
+      const user = $('#user');
+      const profile = $('#profile');
+      switch (loggedIn) {
+        case true:
+          login.style.display = 'none';
+          logout.style.display = 'block';
+          break;
+        case false:
+          login.style.display = 'block';
+          logout.style.display = 'none';
+          break;
+        default:
+          login.style.display = 'block';
+          logout.style.display = 'none';
+          break;
+      }
+      if (session) {
+
+        user[0].textContent = session.webId;
+        if (!profile.value)
+          profile[0].value = session.webId;
+      }
+    });
+
+    const FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
+    $('#view').addEventListener('click', async function loadProfile() {
+      // Set up a local data store and associated data fetcher
+      const store = $rdf.graph();
+      const fetcher = new $rdf.Fetcher(store);
+
+      // Load the person's data into the store
+      const person = $('#profile')[0].value;
+
+      await fetcher.load(person);
+
+      // Display their details
+      const fullName = store.any($rdf.sym(person), FOAF('name'));
+      $('#fullName')[0].textContent = (fullName && fullName.value);
+    });
+  </script>
+</body>
+
+</html>
