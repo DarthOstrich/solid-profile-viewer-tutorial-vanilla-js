@@ -37,7 +37,7 @@
     const login = document.getElementById('login');
     const logout = document.getElementById('logout');
     login.firstElementChild.addEventListener('click', () => solid.auth.popupLogin({ popupUri }));
-    login.firstElementChild.addEventListener('click', () => solid.auth.logout());
+    logout.firstElementChild.addEventListener('click', () => solid.auth.logout());
 
     // Update components to match the user's login status
     solid.auth.trackSession(session => {
