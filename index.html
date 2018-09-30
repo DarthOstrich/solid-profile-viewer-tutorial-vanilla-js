@@ -62,9 +62,9 @@
       }
       if (session) {
 
-        user[0].textContent = session.webId;
+        user.textContent = session.webId;
         if (!profile.value)
-          profile[0].value = session.webId;
+          profile.value = session.webId;
       }
     });
 
@@ -83,7 +83,7 @@
       // Display their details
       const fullName = store.any($rdf.sym(person), FOAF('name'));
       const fullNameEl = document.getElementById('fullName')
-      fullNameEl[0].textContent = (fullName && fullName.value);
+      fullNameEl.textContent = (fullName && fullName.value);
       // display friends
       const friends = store.each($rdf.sym(person), FOAF('knows'));
       const friendsEl = document.getElementById('friends')
@@ -93,12 +93,12 @@
         const fullName = store.any(friend, FOAF('name'));
         let li = document.createElement('li')
         li.innerHTML = (fullName && fullName.value || friend.value);
-        friendsEl[0].appendChild(li);
+        friendsEl.appendChild(li);
       });
       if (friends.length < 1) {
         let li = document.createElement('li')
         li.innerHTML = 'No Friends';
-        friendsEl[0].appendChild(li);
+        friendsEl.appendChild(li);
       }
     });
   </script>
